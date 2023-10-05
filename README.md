@@ -1,5 +1,43 @@
 # CNN_Musseum_Classifier
 
+## Description
+Trainig a CNN to classify images from the [Museum Art Medium dataset](https://storage.hpai.bsc.es/mame-dataset/MAMe_data_256.zip) and its [metadata](https://storage.hpai.bsc.es/mame-dataset/MAMe_metadata.zip).
+
+More info about the task in the `4.Autonomous_Lab-CNNs.pdf` file.
+
+## Conda Environment
+
+```
+conda env create -f environment.yml
+conda env update -f environment.yml
+conda env export --no-builds > environment.yml
+```
+
+## Folders Structure
+
+```
+.
+├── input
+│   ├── data (not included in the repo)
+│   │   ├── raw (raw images)
+│   │   ├── test (npz file with X_test and y_test)
+│   │   ├── train (npz file with X_train and y_train)
+│   │   └── val (npz file with X_val and y_val)
+│   ├── metadata
+│   └── toy (subsample of the data)
+│       ├── test (npz file with X_test and y_test)
+│       ├── train (npz file with X_train and y_train)
+│       └── val (npz file with X_val and y_val)
+├── notebooks
+│   ├── complete
+│   ├── others
+│   └── toy
+└── outputs
+    ├── models
+    ├── others
+    └── toy
+```
+
 ## Solved Issues
 
 1. For the same batch size, for the toy dataset everything ran perfectly but for the complete one there were memory errors. It was solved cleaning the session after each batch pass.
