@@ -4,6 +4,8 @@
 
 import os
 import numpy as np
+import pandas as pd
+import time
 
 from tensorflow import keras
 np.random.seed(0)
@@ -18,6 +20,7 @@ import argparse
 
 ## Set up command line parameters
 parser = argparse.ArgumentParser()
+parser.add_argument('--name', type=str, default='experiment')
 parser.add_argument('--lr', type=float, default=0.0005)
 parser.add_argument('--bs', type=int, default=128)
 parser.add_argument('--ep', type=int, default=10)
@@ -27,8 +30,9 @@ parser.add_argument('--outpath', type=str, default=config.OUTPUT_FOLDER)
 LEARNING_RATE = parser.parse_args().lr
 BATCH_SIZE = parser.parse_args().bs
 EPOCHS = parser.parse_args().ep
+EXPNAME = parser.parse_args().name
 EVENTNAME = f"lr_{LEARNING_RATE}_bs_{BATCH_SIZE}_ep_{EPOCHS}"
-OUTPUT_FOLDER = os.path.join(parser.parse_args().outpath, EVENTNAME)
+OUTPUT_FOLDER = os.path.join(parser.parse_args().outpath, EXPNAME, EVENTNAME)
                 
 ## Create output folder                 
 if not os.path.exists(OUTPUT_FOLDER):
@@ -78,6 +82,7 @@ write_summary(model, OUTPUT_FOLDER)
 logger.info(header('TRAINING DATA'))
 train_generator = CustomDataGenerator(X_train, y_train, batch_size=BATCH_SIZE)
 
+
 model.fit(train_generator, epochs=EPOCHS, validation_data=(X_val, y_val))
 model_file = os.path.join(OUTPUT_FOLDER, f'model.keras')
 model.save(model_file)
@@ -99,5 +104,16 @@ fig = plot_cm(y_val, y_pred, labels=config.LABELS, pct=True)
 fig.savefig(os.path.join(OUTPUT_FOLDER, 'confusion_matrix_pct.jpg'))
 
 report = class_report(y_val, y_pred, out_path=OUTPUT_FOLDER)
+
+acc_train = model.evaluate(X_train, y_train, verbose=0)[1]
+acc_val = model.evaluate(X_val, y_val, verbose=0)[1]
+
+d_results = {"name": EXPNAME,
+             "train_acc": acc_train,
+             "val_acc": acc_val,
+             "time_per_epoch_s": 21}
+
+df_results = pd.DataFrame(d_results, index=[0])
+df_results.to_csv(os.path.join(OUTPUT_FOLDER, 'metrics.csv'), index=False)
 
 logger.info(header('END'))
