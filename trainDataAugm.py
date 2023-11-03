@@ -74,7 +74,7 @@ train_generator_df = datagen.flow_from_dataframe(dataframe=df_load_data[df_load_
                                               y_col="id", 
                                               class_mode="sparse", 
                                               target_size=(256, 256), 
-                                              batch_size=1,
+                                              batch_size=BATCH_SIZE,
                                               rescale=1.0/255,
                                               seed=2020)
 
@@ -84,7 +84,7 @@ val_generator_df = datagen.flow_from_dataframe(dataframe=df_load_data[df_load_da
                                               y_col="id", 
                                               class_mode="sparse", 
                                               target_size=(256, 256), 
-                                              batch_size=1,
+                                              batch_size=BATCH_SIZE,
                                               rescale=1.0/255,
                                               seed=2020)
 
@@ -108,8 +108,11 @@ logger.info(header('DEFINE MODEL'))
 
 layers = [
             keras.Input(shape=(config.IMG_SIZE, config.IMG_SIZE, config.N_CHANNELS)),
-            keras.layers.Rescaling(1./255.),
-            keras.layers.Conv2D(1,(3,3), activation = 'relu'),
+            keras.layers.experimental.preprocessing.Rescaling(1./255.),
+            keras.layers.Conv2D(32,(3,3), activation = 'relu'),
+            keras.layers.MaxPooling2D(pool_size = (4, 4)),
+            
+            keras.layers.Conv2D(64,(3,3), activation = 'relu'),
             keras.layers.MaxPooling2D(pool_size = (4, 4)),
 
             keras.layers.Flatten(),
@@ -119,7 +122,7 @@ layers = [
 
 model = keras.Sequential(layers)
 
-model.compile(optimizer=keras.optimizers.legacy.Adam(learning_rate=LEARNING_RATE),
+model.compile(optimizer=keras.optimizers.Adam(learning_rate=LEARNING_RATE),
               loss='sparse_categorical_crossentropy',
               metrics=['accuracy'])
 
