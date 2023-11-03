@@ -122,7 +122,7 @@ layers = [
 
 model = keras.Sequential(layers)
 
-model.compile(optimizer=keras.optimizers.Adam(learning_rate=LEARNING_RATE),
+model.compile(optimizer=keras.optimizers.legacy.Adam(learning_rate=LEARNING_RATE),
               loss='sparse_categorical_crossentropy',
               metrics=['accuracy'])
 
