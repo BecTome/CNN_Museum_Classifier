@@ -58,12 +58,15 @@ df_load_data = df_info.merge(df_labels, right_on='label', left_on='Medium')[['Im
 
 # ImageDataGenerator
 datagen = ImageDataGenerator(
-        rotation_range=10, # rotation
-        width_shift_range=0.2, # horizontal shift
-        height_shift_range=0.2, # vertical shift
-        zoom_range=0.2, # zoom
-        horizontal_flip=True, # horizontal flip
-        brightness_range=[0.2,1.2]) # brightness
+                                rotation_range=10, # rotation
+                                width_shift_range=0.2, # horizontal shift
+                                height_shift_range=0.2, # vertical shift
+                                zoom_range=0.2, # zoom
+                                horizontal_flip=True, # horizontal flip
+                                brightness_range=[0.2,1.2], # brightness
+                                rescale=1./255.) 
+
+val_datagen = ImageDataGenerator(rescale=1./255.) # brightness
 
 
 df_load_data['id'] = df_load_data['id'].astype('str') # requires target in string format
@@ -75,17 +78,15 @@ train_generator_df = datagen.flow_from_dataframe(dataframe=df_load_data[df_load_
                                               class_mode="sparse", 
                                               target_size=(256, 256), 
                                               batch_size=BATCH_SIZE,
-                                              rescale=1.0/255,
                                               seed=2020)
 
-val_generator_df = datagen.flow_from_dataframe(dataframe=df_load_data[df_load_data['Subset'] == 'val'], 
+val_generator_df = val_datagen.flow_from_dataframe(dataframe=df_load_data[df_load_data['Subset'] == 'val'], 
                                               directory=RAW_DATA_PATH,
                                               x_col="Image file", 
                                               y_col="id", 
                                               class_mode="sparse", 
                                               target_size=(256, 256), 
                                               batch_size=BATCH_SIZE,
-                                              rescale=1.0/255,
                                               seed=2020)
 
 
@@ -108,7 +109,6 @@ logger.info(header('DEFINE MODEL'))
 
 layers = [
             keras.Input(shape=(config.IMG_SIZE, config.IMG_SIZE, config.N_CHANNELS)),
-            keras.layers.experimental.preprocessing.Rescaling(1./255.),
             keras.layers.Conv2D(32,(3,3), activation = 'relu'),
             keras.layers.MaxPooling2D(pool_size = (4, 4)),
             
