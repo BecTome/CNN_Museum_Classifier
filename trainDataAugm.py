@@ -138,7 +138,7 @@ model.fit_generator(train_generator_df,
                     validation_data=val_generator_df,
                     validation_steps=X_val.shape[0]//BATCH_SIZE)
 
-model_file = os.path.join(OUTPUT_FOLDER, f'model.keras')
+model_file = os.path.join(OUTPUT_FOLDER, f'model.h5')
 model.save(model_file)
 
 ## Evaluate model

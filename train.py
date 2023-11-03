@@ -84,7 +84,7 @@ train_generator = CustomDataGenerator(X_train, y_train, batch_size=BATCH_SIZE)
 
 
 model.fit(train_generator, epochs=EPOCHS, validation_data=(X_val, y_val))
-model_file = os.path.join(OUTPUT_FOLDER, f'model.keras')
+model_file = os.path.join(OUTPUT_FOLDER, f'model.h5')
 model.save(model_file)
 
 ## Evaluate model
