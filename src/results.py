@@ -27,8 +27,7 @@ def plot_cm(y_true, y_pred, labels, pct=False):
     cm = get_cm(y_true, y_pred, pct=pct)
     fig = plt.figure(figsize=(20,15))
     if pct:
-        sns.heatmap(cm, annot=True, fmt='.2f',
-                    xticklabels=labels, yticklabels=labels)
+        sns.heatmap(cm, annot=True, fmt='.2f')
     else:
         sns.heatmap(cm, annot=True, fmt='d',
                     xticklabels=labels, yticklabels=labels)
