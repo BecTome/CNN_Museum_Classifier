@@ -89,17 +89,19 @@ val_generator_df = val_datagen.flow_from_dataframe(dataframe=df_load_data[df_loa
                                               batch_size=BATCH_SIZE,
                                               seed=2020)
 
-# X_train, y_train = read_train()
-# output_shape = np.unique(y_train).shape[0]
-# logger.info(f"TRAINING SIZE: {X_train.shape}")
-# logger.info(f"NUMBER OF CLASSES: {output_shape}")
 
-# X_val, _ = read_val()
+test_generator_df = val_datagen.flow_from_dataframe(dataframe=df_load_data[df_load_data['Subset'] == 'val'],
+                                                    directory=RAW_DATA_PATH,
+                                                    x_col="Image file", 
+                                                    y_col="Medium",
+                                                    class_mode="sparse",
+                                                    target_size=(256, 256), 
+                                                    batch_size=BATCH_SIZE,
+                                                    shuffle=False,
+                                                    seed=2020)
+
 y_val = val_generator_df.classes
 labels = list(train_generator_df.class_indices.keys())
-
-# logger.info(f"VALIDATION SIZE: {X_val.shape}")
-# logger.info(f"NUMBER OF CLASSES: {np.unique(y_val).shape[0]}")
 
 ## Define architecture
 logger.info(header('DEFINE MODEL'))
@@ -147,7 +149,7 @@ logger.info(f"Write model in: {model_file}")
 fig = plot_history(model)
 fig.savefig(os.path.join(OUTPUT_FOLDER, f'history_{EVENTNAME}.png'))
 
-y_prob = model.predict(val_generator_df, verbose=0)
+y_prob = model.predict(test_generator_df, verbose=0)
 y_pred = np.argmax(y_prob, axis=1)
 
 fig = plot_cm(y_val, y_pred, labels=labels)
