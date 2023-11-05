@@ -58,17 +58,24 @@ df_load_data = df_info.merge(df_labels, right_on='label', left_on='Medium')[['Im
 
 
 datagen = ImageDataGenerator(
-                                rotation_range=5, # rotation
-                                width_shift_range=0.1, # horizontal shift
-                                height_shift_range=0.1, # vertical shift
-                                zoom_range=0.1, # zoom
-                                horizontal_flip=True, # horizontal flip
-                                brightness_range=[0.8,1.2], # brightness
-                                rescale=1./255.) 
-
-val_datagen = ImageDataGenerator(rescale=1./255.) # brightness
+                                rotation_range=30,        # Random rotation between -30 and 30 degrees
+                                width_shift_range=0.125,    # Random horizontal shifting (crop)
+                                height_shift_range=0.125,   # Random vertical shifting (crop)
+                                horizontal_flip=True,     # Randomly flip images horizontally
+                                rescale=1./255.,          # Rescale pixel values to the range [0, 1]
+                                featurewise_center=True,  # Normalize by subtracting mean pixel value
+                                featurewise_std_normalization=True,  # Normalize by dividing by standard deviation
 
 
+)
+
+val_datagen = ImageDataGenerator(rescale=1./255.,
+                                featurewise_center=True,  # Normalize by subtracting mean pixel value
+                                featurewise_std_normalization=True,  # Normalize by dividing by standard deviation
+)
+
+val_datagen.mean = 0.5795
+val_datagen.std = 4.22
 # df_load_data['id'] = df_load_data['id'].astype('str') # requires target in string format
 
 train_generator_df = datagen.flow_from_dataframe(dataframe=df_load_data[df_load_data['Subset'] == 'train'], 
@@ -107,6 +114,7 @@ labels = list(train_generator_df.class_indices.keys())
 logger.info(header('DEFINE MODEL'))
 
 layers = [
+        
         keras.Input(shape=(config.IMG_SIZE, config.IMG_SIZE, config.N_CHANNELS)),
         keras.layers.Conv2D(32,(3,3), activation = 'relu'),
         keras.layers.BatchNormalization(),
