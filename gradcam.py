@@ -56,7 +56,7 @@ conv_layer_name = [layer.name for layer in model_exp.layers if 'conv' in layer.n
 for k in range(N // 10 * 10):
     arr_in = arr[k].copy()
     # Generate class activation heatmap
-    heatmap = make_gradcam_heatmap(arr_in, model_exp, conv_layer_name, pred_index=None)
+    heatmap = make_gradcam_heatmap(arr_in / 255., model_exp, conv_layer_name, pred_index=None)
 
     superimposed = save_and_display_gradcam(arr_in, heatmap)
     ax[k].imshow(superimposed)

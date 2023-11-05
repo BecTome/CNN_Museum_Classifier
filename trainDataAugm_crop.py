@@ -6,7 +6,6 @@ import os
 import numpy as np
 
 from tensorflow import keras
-from tensorflow.keras.regularizers import l1, l2
 np.random.seed(0)
 
 import src.config as config
@@ -61,22 +60,22 @@ df_load_data = df_info.merge(df_labels, right_on='label', left_on='Medium')[['Im
 
 datagen = ImageDataGenerator(
                                 rotation_range=30,        # Random rotation between -30 and 30 degrees
-                                width_shift_range=0.125,    # Random horizontal shifting (crop)
-                                height_shift_range=0.125,   # Random vertical shifting (crop)
+                                # width_shift_range=0.125,    # Random horizontal shifting (crop)
+                                # height_shift_range=0.125,   # Random vertical shifting (crop)
                                 horizontal_flip=True,     # Randomly flip images horizontally
                                 rescale=1./255.,          # Rescale pixel values to the range [0, 1]
+                                preprocessing_function=lambda x: center_crop(x, 200, 200),
                                 # featurewise_center=True,  # Normalize by subtracting mean pixel value
                                 # featurewise_std_normalization=True,  # Normalize by dividing by standard deviation
+
 
 )
 
 val_datagen = ImageDataGenerator(rescale=1./255.,
-                                # preprocessing_function=lambda x: center_crop(x, 200, 200),
+                                preprocessing_function=lambda x: center_crop(x, 200, 200),
                                 # featurewise_center=True,  # Normalize by subtracting mean pixel value
                                 # featurewise_std_normalization=True,  # Normalize by dividing by standard deviation
 )
-# val_datagen.mean = 0.5
-# val_datagen.std = 0.5
 
 # val_datagen.mean = 0.5795
 # val_datagen.std = 4.22
@@ -87,7 +86,7 @@ train_generator_df = datagen.flow_from_dataframe(dataframe=df_load_data[df_load_
                                               x_col="Image file", 
                                               y_col="Medium", 
                                               class_mode="sparse", 
-                                              target_size=(config.IMG_SIZE, config.IMG_SIZE), 
+                                              target_size=(200, 200), 
                                               batch_size=BATCH_SIZE,
                                               seed=2020)
 
@@ -96,7 +95,7 @@ val_generator_df = val_datagen.flow_from_dataframe(dataframe=df_load_data[df_loa
                                               x_col="Image file", 
                                               y_col="Medium", 
                                               class_mode="sparse", 
-                                              target_size=(config.IMG_SIZE, config.IMG_SIZE), 
+                                              target_size=(200, 200), 
                                               batch_size=BATCH_SIZE,
                                               seed=2020)
 
@@ -106,7 +105,7 @@ test_generator_df = val_datagen.flow_from_dataframe(dataframe=df_load_data[df_lo
                                                     x_col="Image file", 
                                                     y_col="Medium",
                                                     class_mode="sparse",
-                                                    target_size=(config.IMG_SIZE, config.IMG_SIZE), 
+                                                    target_size=(200, 200), 
                                                     batch_size=BATCH_SIZE,
                                                     shuffle=False,
                                                     seed=2020)
@@ -118,28 +117,21 @@ labels = list(train_generator_df.class_indices.keys())
 logger.info(header('DEFINE MODEL'))
 
 layers = [
-            keras.Input(shape=(config.IMG_SIZE, config.IMG_SIZE, config.N_CHANNELS)),
-            keras.layers.Conv2D(16,(3,3), activation = 'relu',kernel_regularizer=l2(0.001)),
-            keras.layers.MaxPooling2D(pool_size = (2, 2)),
-            keras.layers.BatchNormalization(),
-            
-            keras.layers.Conv2D(32,(3,3), activation = 'relu',kernel_regularizer=l2(0.01)),
-            keras.layers.MaxPooling2D(pool_size = (2, 2)),
-            keras.layers.BatchNormalization(),
-            
-            keras.layers.Conv2D(64,(3,3), activation = 'relu',kernel_regularizer=l1(0.01)),
-            keras.layers.MaxPooling2D(pool_size = (2, 2)),
-             keras.layers.BatchNormalization(),
+        
+        keras.Input(shape=(200, 200, config.N_CHANNELS)),
+        keras.layers.Conv2D(32,(3,3), activation = 'relu'),
+        keras.layers.BatchNormalization(),
+        keras.layers.MaxPooling2D(pool_size = (4, 4)),
+        keras.layers.Conv2D(64,(3,3), activation = 'relu'),
+        keras.layers.BatchNormalization(),
+        keras.layers.MaxPooling2D(pool_size = (4, 4)),
+        keras.layers.Conv2D(128,(3,3), activation = 'relu'),
+        keras.layers.MaxPooling2D(pool_size = (4, 4)),
 
-            
-            keras.layers.Conv2D(128,(3,3), activation = 'relu',kernel_regularizer=l1(0.3)),
-            keras.layers.MaxPooling2D(pool_size = (2, 2)),
-            keras.layers.BatchNormalization(),
-
-            keras.layers.Flatten(),
-            keras.layers.Dense(64, activation='relu'),
-            keras.layers.Dropout(0.5),
-            keras.layers.Dense(29, activation='softmax')
+        keras.layers.Flatten(),
+        keras.layers.Dense(512, activation='relu'),
+        keras.layers.Dense(64, activation='relu'),
+        keras.layers.Dense(29, activation='softmax')
 ]
 
 model = keras.Sequential(layers)
