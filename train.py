@@ -13,10 +13,12 @@ np.random.seed(0)
 import src.config as config
 from src.dataloader import read_train, read_val
 from src.preprocessing import CustomDataGenerator
-from src.results import plot_history, plot_cm, class_report,\
+from src.results import plot_history, plot_history_logloss, plot_cm, class_report,\
                             save_params, write_summary
 from src.utils import setup_logger, header
 import argparse
+from keras.regularizers import l2,l1,l1_l2
+
 
 ## Set up command line parameters
 parser = argparse.ArgumentParser()
@@ -61,18 +63,46 @@ logger.info(header('DEFINE MODEL'))
 
 layers = [
             keras.Input(shape=(config.IMG_SIZE, config.IMG_SIZE, config.N_CHANNELS)),
-            keras.layers.Rescaling(1./255.),
-            keras.layers.Conv2D(1,(3,3), activation = 'relu'),
-            keras.layers.MaxPooling2D(pool_size = (4, 4)),
+            keras.layers.experimental.preprocessing.Rescaling(1./255),
+            keras.layers.Conv2D(64,(3,3), activation = 'relu',kernel_regularizer=l2(0.001)),
+            keras.layers.Dropout(0.2),
+            keras.layers.MaxPooling2D(pool_size = (2, 2)),
+            keras.layers.BatchNormalization(),
+            
+            keras.layers.Conv2D(128,(3,3), activation = 'relu',kernel_regularizer=l2(0.001)),
+            keras.layers.Dropout(0.2),
+            keras.layers.MaxPooling2D(pool_size = (2, 2)),
+            keras.layers.BatchNormalization(),
+            
+            keras.layers.Conv2D(256,(3,3), activation = 'relu',kernel_regularizer=l1_l2(0.01,0.001)),
+            keras.layers.Dropout(0.3),
+            keras.layers.MaxPooling2D(pool_size = (2, 2)),
+            keras.layers.BatchNormalization(),
+
+            keras.layers.Conv2D(256,(3,3), activation = 'relu',kernel_regularizer=l1_l2(l1=0.01, l2=0.001)),
+            keras.layers.Dropout(0.4),
+            keras.layers.MaxPooling2D(pool_size = (2, 2)),
+            keras.layers.BatchNormalization(),
 
             keras.layers.Flatten(),
-            keras.layers.Dense(64, activation='relu'),
+            keras.layers.Dense(256, activation='relu', kernel_regularizer=l1_l2(l1=0.1, l2=0.001)),
+            keras.layers.Dropout(0.5),
             keras.layers.Dense(output_shape, activation='softmax')
 ]
 
 model = keras.Sequential(layers)
 
-model.compile(optimizer=keras.optimizers.legacy.Adam(learning_rate=LEARNING_RATE),
+# def lr_schedule(epoch):
+#     initial_lr = LEARNING_RATE  # Initial learning rate
+#     decay = 0.95  # Decay rate
+#     lr = initial_lr * (decay ** epoch)
+#     return lr
+
+# from keras.callbacks import LearningRateScheduler
+# lr_scheduler = LearningRateScheduler(lr_schedule)
+
+
+model.compile(optimizer=keras.optimizers.Adam(learning_rate=LEARNING_RATE),
               loss='sparse_categorical_crossentropy',
               metrics=['accuracy'])
 
@@ -91,7 +121,7 @@ model.save(model_file)
 logger.info(header('WRITE'))
 logger.info(f"Write model in: {model_file}")
 
-fig = plot_history(model)
+fig = plot_history_logloss(model)
 fig.savefig(os.path.join(OUTPUT_FOLDER, f'history_{EVENTNAME}.png'))
 
 y_prob = model.predict(X_val, verbose=0)

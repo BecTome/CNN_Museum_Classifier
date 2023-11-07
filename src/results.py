@@ -16,6 +16,18 @@ def plot_history(model):
     df_hist[['loss', 'val_loss']].plot(ax=ax[1])
     return fig
 
+def plot_history_logloss(model):
+    
+    df_hist = model.history.history
+    df_hist = pd.DataFrame(df_hist)
+
+    fig, ax = plt.subplots(1,2, figsize=(15,5))
+    df_hist[['accuracy', 'val_accuracy']].plot(ax=ax[0])
+    ax[1].set_yscale('log')
+    ax[1].set_xscale('log')
+    df_hist[['loss', 'val_loss']].plot(ax=ax[1])
+    return fig
+
 def get_cm(y_true, y_pred, pct=False):
     cm = confusion_matrix(y_true, y_pred)
     if pct:
