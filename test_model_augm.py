@@ -90,7 +90,6 @@ y_pred = np.argmax(y_prob, axis=1)
 
 import matplotlib.pyplot as plt
 fig = plot_cm(y_test, y_pred, labels=labels)
-plt.show()
 fig.savefig(os.path.join(OUTPUT_FOLDER, 'confusion_matrix.jpg'))
 
 fig = plot_cm(y_test, y_pred, labels=labels, pct=True)
