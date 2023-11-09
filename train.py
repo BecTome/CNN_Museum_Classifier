@@ -64,29 +64,25 @@ logger.info(header('DEFINE MODEL'))
 layers = [
             keras.Input(shape=(config.IMG_SIZE, config.IMG_SIZE, config.N_CHANNELS)),
             keras.layers.experimental.preprocessing.Rescaling(1./255),
-            keras.layers.Conv2D(64,(3,3), activation = 'relu',kernel_regularizer=l2(0.001)),
-            keras.layers.Dropout(0.2),
+            keras.layers.Conv2D(32,(3,3), activation = 'relu',kernel_regularizer=l2(0.001)),
             keras.layers.MaxPooling2D(pool_size = (2, 2)),
             keras.layers.BatchNormalization(),
             
-            keras.layers.Conv2D(128,(3,3), activation = 'relu',kernel_regularizer=l2(0.001)),
-            keras.layers.Dropout(0.2),
+            keras.layers.Conv2D(32,(3,3), activation = 'relu',kernel_regularizer=l2(0.001)),
             keras.layers.MaxPooling2D(pool_size = (2, 2)),
             keras.layers.BatchNormalization(),
             
-            keras.layers.Conv2D(256,(3,3), activation = 'relu',kernel_regularizer=l1_l2(0.01,0.001)),
-            keras.layers.Dropout(0.3),
+            keras.layers.Conv2D(64,(3,3), activation = 'relu',kernel_regularizer=l1_l2(0.01,0.001)),
             keras.layers.MaxPooling2D(pool_size = (2, 2)),
             keras.layers.BatchNormalization(),
 
-            keras.layers.Conv2D(256,(3,3), activation = 'relu',kernel_regularizer=l1_l2(l1=0.01, l2=0.001)),
-            keras.layers.Dropout(0.4),
+            keras.layers.Conv2D(128,(3,3), activation = 'relu',kernel_regularizer=l1_l2(l1=0.01, l2=0.001)),
             keras.layers.MaxPooling2D(pool_size = (2, 2)),
             keras.layers.BatchNormalization(),
 
             keras.layers.Flatten(),
-            keras.layers.Dense(256, activation='relu', kernel_regularizer=l1_l2(l1=0.1, l2=0.001)),
-            keras.layers.Dropout(0.5),
+            keras.layers.Dense(64, activation='relu', kernel_regularizer=l1_l2(l1=0.01,l2=0.001)),
+            keras.layers.Dropout(0.6),
             keras.layers.Dense(output_shape, activation='softmax')
 ]
 

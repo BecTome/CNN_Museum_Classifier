@@ -1,0 +1,2 @@
+name,train_acc,val_acc,time_per_epoch_s
+bitMore,0.7320197224617004,0.6441379189491272,21
