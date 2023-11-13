@@ -22,7 +22,9 @@ parser.add_argument('--model', type=str)
 parser.add_argument('--nclass', type=int, default=0)
 parser.add_argument('--name', type=str, default='experiment')
 parser.add_argument('--outpath', type=str, default=config.OUTPUT_FOLDER)
+parser.add_argument('--rescale', type=bool, default=False)
 
+RESCALE = parser.parse_args().rescale
 MODEL_PATH  = parser.parse_args().model
 N_CLASS = parser.parse_args().nclass
 EXPNAME = parser.parse_args().name
@@ -56,7 +58,10 @@ conv_layer_name = [layer.name for layer in model_exp.layers if 'conv' in layer.n
 for k in range(N // 10 * 10):
     arr_in = arr[k].copy()
     # Generate class activation heatmap
-    heatmap = make_gradcam_heatmap(arr_in / 255., model_exp, conv_layer_name, pred_index=None)
+    if RESCALE:
+        heatmap = make_gradcam_heatmap(arr_in / 255., model_exp, conv_layer_name, pred_index=None)
+    else:
+        heatmap = make_gradcam_heatmap(arr_in, model_exp, conv_layer_name, pred_index=None)
 
     superimposed = save_and_display_gradcam(arr_in, heatmap)
     ax[k].imshow(superimposed)
