@@ -7,6 +7,7 @@ LABELS = ['Albumen photograph', 'Bronze', 'Ceramic', 'Clay', 'Engraving',
             'Silk and metal thread', 'Silver', 'Steel', 'Wood',
             'Wood engraving', 'Woodblock', 'Woodcut', 'Woven fabric']
 
+N_CLASSES = len(LABELS)
 
 RAW_DATA_PATH = 'input/data/'
 
