@@ -14,6 +14,13 @@ def plot_history(model):
     fig, ax = plt.subplots(1,2, figsize=(15,5))
     df_hist[['accuracy', 'val_accuracy']].plot(ax=ax[0])
     df_hist[['loss', 'val_loss']].plot(ax=ax[1])
+
+    ax[0].set_ylabel('Accuracy')
+    ax[0].set_ylim([0,1])
+    ax[1].set_ylabel('Loss')
+
+    ax[0].set_xlabel('Epoch')
+    ax[1].set_xlabel('Epoch')
     return fig
 
 def plot_history_logloss(model):
