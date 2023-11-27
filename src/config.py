@@ -15,6 +15,8 @@ TRAIN_PATH = 'input/data/train/'
 VAL_PATH = 'input/data/val/'
 TEST_PATH = 'input/data/test/'
 OUTPUT_FOLDER = 'output/'
+OUTPUT_FEATEXT_PATH = 'output/featext/'
+
 
 META_PATH = 'input/metadata/'
 IMG_SIZE = 256
