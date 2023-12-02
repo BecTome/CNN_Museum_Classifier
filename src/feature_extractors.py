@@ -33,10 +33,10 @@ class FeatureExtractor:
         if model_name == "EfficientNetB3":
             self.model = self.EfficientNetB3()
         
-        if model_name == "ScratchModel":
+        if model_name == "FineTunedVGG16":
             if checkpoint_path is None:
                 raise ValueError("Please specify a checkpoint path")
-            self.model = self.ScratchModel()
+            self.model = self.FineTunedVGG16()
         
         if model_name == "AugmentedScratchModel":
             if checkpoint_path is None:
@@ -162,13 +162,14 @@ class FeatureExtractor:
         self.decode_predictions = None
         return model
 
-    def ScratchModel(self):
+    def FineTunedVGG16(self):
         model = keras.models.load_model(self.checkpoint_path)
         for layer in model.layers:
             layer._name = "_" + layer.name
 
+        self.extraction_layer = model.layers[-3]
         self.INPUT_SHAPE = (256, 256, 3)
-        self.preprocess_input = lambda x: x
+        self.preprocess_input = lambda x: x / 255.
         self.decode_predictions = None
         return model
 
